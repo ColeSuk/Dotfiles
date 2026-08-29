@@ -1,0 +1,8 @@
+{
+    "Lua.workspace.library":[
+        "/usr/share/hypr/subs"
+    ],
+    "Lua.diagnostics.globals": [
+        "hl"
+    ]
+}
