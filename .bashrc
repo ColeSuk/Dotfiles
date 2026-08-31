@@ -14,3 +14,4 @@ alias la='eza -la --icons'
 alias vim='nvim'
 
 eval "$(starship init bash)"
+export PATH="$HOME/.local/bin:$PATH"
