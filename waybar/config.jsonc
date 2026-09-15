@@ -59,6 +59,6 @@
   },
 
   "battery": {
-    "on-click": "alacritty -e batctl"
+    "on-click": "alacritty -e jolt"
   }
 }
