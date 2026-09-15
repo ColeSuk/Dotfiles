@@ -1,10 +1,8 @@
 # personal
 Arch :: https://wiki.archlinux.org/title/Main_page
 Bash :: https://devhints.io/bash
-C :: https://www.c-language.org/
+Dev-Env :: http://127.0.0.1
 GitHub :: https://github.com/
 Hyprland :: https://wiki.hypr.land/
 LazyVim :: https://lazyvim-ambitious-devs.phillips.codes/
 Lua :: https://www.lua.org/
-Proton :: https://proton.me/
-Youtube :: https://www.youtube.com/
