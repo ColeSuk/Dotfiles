@@ -24,7 +24,7 @@ local sessions = "~/dev/scripts/tmux.sh"
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
 
 hl.on("hyprland.start", function()
-  hl.exec_cmd("systemctl -user start hyprpolkitagent")
+  hl.exec_cmd("systemctl --user start hyprpolkitagent")
   hl.exec_cmd("waybar")
   hl.exec_cmd("hyprpaper")
   hl.exec_cmd("brave", { workspace = "3 silent" })
@@ -342,4 +342,3 @@ hl.window_rule({
   center = true,
   size = { 1000, 600 }
 })
-
