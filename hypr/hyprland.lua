@@ -1,14 +1,15 @@
+require("monitors_active")
 ------------------
 ---- MONITORS ----
 ------------------
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
 
-hl.monitor({
-  output   = "eDP-1",
-  mode     = "3840x2160@60",
-  position = "0x0",
-  scale    = "1.67",
-})
+--hl.monitor({
+--  output   = "eDP-1",
+--  mode     = "3840x2160@60",
+--  position = "0x0",
+--  scale    = "1.67",
+--})
 
 local files = "kitty -e yazi"
 local menu = "rofi -show drun"
@@ -17,6 +18,7 @@ local docker = "kitty -e lazydocker"
 local bookmarks = "~/dev/scripts/bookmarks.sh"
 local repos = "~/dev/scripts/repos.sh"
 local sessions = "~/dev/scripts/tmux.sh"
+local monitors = "~/.config/hypr/scripts/monitor_profile_swapper.sh"
 
 -------------------
 ---- AUTOSTART ----
@@ -237,6 +239,7 @@ hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(bookmarks))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(repos))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(sessions))
+hl.bind(mainMod .. " + O", hl.dsp.exec_cmd(monitors))
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("hyprlock"))
 
 -- Move focus with mainMod + vim binds
