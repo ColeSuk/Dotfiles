@@ -18,7 +18,7 @@ local docker = "kitty -e lazydocker"
 local bookmarks = "~/dev/scripts/bookmarks.sh"
 local repos = "~/dev/scripts/repos.sh"
 local sessions = "~/dev/scripts/tmux.sh"
-local monitors = "~/.config/hypr/scripts/monitor_profile_swapper.sh"
+local monitors = "~/dev/scripts/monitor_dock_detect.sh"
 
 -------------------
 ---- AUTOSTART ----
