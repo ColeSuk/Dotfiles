@@ -4,13 +4,6 @@ require("monitors_active")
 ------------------
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
 
---hl.monitor({
---  output   = "eDP-1",
---  mode     = "3840x2160@60",
---  position = "0x0",
---  scale    = "1.67",
---})
-
 local files = "kitty -e yazi"
 local menu = "rofi -show drun"
 local terminal = "kitty"
@@ -41,9 +34,10 @@ end)
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
---hl.env("LIBVA_DRIVER_LIBRARY_NAME", "nvidia")
---hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
-
+hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+hl.env("LIBVA_DRIVER_LIBRARY_NAME", "nvidia")
+hl.env("GBM_BACKEND", "nvidia-drm")
+hl.env("NVD_BACKEND", "direct")
 -----------------------
 ----- PERMISSIONS -----
 -----------------------
