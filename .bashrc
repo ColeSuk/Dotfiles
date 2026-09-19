@@ -9,8 +9,8 @@ alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 
 # My Tweaks
-alias ls='eza -l --icons'
-alias la='eza -la --icons'
+alias ls='eza -l --icons=auto'
+alias la='eza -la --icons=auto'
 alias vim='nvim'
 
 eval "$(starship init bash)"
