@@ -13,5 +13,8 @@ alias ls='eza -l --icons=auto'
 alias la='eza -la --icons=auto'
 alias vim='nvim'
 
+export EDITOR=vim
+export VISUAL=vim
+
 eval "$(starship init bash)"
 export PATH="$HOME/.local/bin:$PATH"
