@@ -1,8 +1,0 @@
-# personal
-Arch :: https://wiki.archlinux.org/title/Main_page
-Bash :: https://devhints.io/bash
-Dev-Env :: http://127.0.0.1
-GitHub :: https://github.com/
-Hyprland :: https://wiki.hypr.land/
-LazyVim :: https://lazyvim-ambitious-devs.phillips.codes/
-Lua :: https://www.lua.org/
