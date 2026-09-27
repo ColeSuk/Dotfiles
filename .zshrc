@@ -163,3 +163,4 @@ alias pi="composer install"
 bindkey '^R' history-incremental-search-backward  # overridden by fzf if installed
 bindkey '^[[A' history-substring-search-up 2>/dev/null
 bindkey '^[[B' history-substring-search-down 2>/dev/null
+export PATH="$HOME/.local/bin:$PATH"

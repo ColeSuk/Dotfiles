@@ -1,3 +1,5 @@
 [user]
 	name = Cole Suk
 	email = 299293564+ColeSuk@users.noreply.github.com
+[init]
+	defaultBranch = main
