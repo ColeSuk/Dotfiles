@@ -12,6 +12,7 @@ local bookmarks = "~/dev/scripts/bookmarks.sh"
 local repos = "~/dev/scripts/repos.sh"
 local sessions = "~/dev/scripts/tmux.sh"
 local monitors = "~/dev/scripts/monitor_dock_detect.sh"
+local browser = "brave"
 
 -------------------
 ---- AUTOSTART ----
@@ -22,7 +23,6 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("systemctl --user start hyprpolkitagent")
   hl.exec_cmd("waybar")
   hl.exec_cmd("hyprpaper")
-  hl.exec_cmd("brave", { workspace = "3 silent" })
 end)
 
 
@@ -234,6 +234,7 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(bookmarks))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(repos))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(sessions))
 hl.bind(mainMod .. " + O", hl.dsp.exec_cmd(monitors))
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("hyprlock"))
 
 -- Move focus with mainMod + vim binds
