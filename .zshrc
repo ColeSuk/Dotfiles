@@ -46,6 +46,11 @@ zinit light zsh-users/zsh-autosuggestions
 # (load last, as its docs recommend)
 zinit light zsh-users/zsh-syntax-highlighting
 
+# Up/down arrow cycles history filtered by what you've already typed.
+# Provides the history-substring-search-up/down widgets bound below.
+# Must load after zsh-syntax-highlighting (its docs recommend this order).
+zinit light zsh-users/zsh-history-substring-search
+
 # Extra completion definitions beyond what zsh ships with
 zinit light zsh-users/zsh-completions
 
@@ -161,7 +166,23 @@ alias pi="composer install"
 # ---------------------------------------------------------------------------
 # Key bindings (in addition to zsh-vi-mode defaults)
 # ---------------------------------------------------------------------------
-bindkey '^R' history-incremental-search-backward  # overridden by fzf if installed
-bindkey '^[[A' history-substring-search-up 2>/dev/null
-bindkey '^[[B' history-substring-search-down 2>/dev/null
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+# zsh-vi-mode finishes its own setup on the first prompt (via a precmd hook),
+# which runs after this whole file, and it unconditionally rebinds ^R to
+# plain incremental search -- silently undoing fzf's Ctrl-R fuzzy-history
+# binding from the fzf block above. Re-apply it here, in zsh-vi-mode's own
+# post-init hook, so it takes effect last and actually sticks. If fzf isn't
+# installed, zsh-vi-mode's own default (plain incremental search) is used.
+function zvm_after_init() {
+    if command -v fzf &>/dev/null; then
+        source /usr/share/fzf/key-bindings.zsh 2>/dev/null
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Exports
+# ---------------------------------------------------------------------------
 export PATH="$HOME/.local/bin:$PATH"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
