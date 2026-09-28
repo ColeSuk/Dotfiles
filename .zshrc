@@ -104,6 +104,7 @@ export SUDO_EDITOR="nvim"
 # ---------------------------------------------------------------------------
 alias vim="nvim"
 alias vi="nvim"
+alias ansible='nocorrect ansible'
 
 # pacman/yay shortcuts
 alias pacs="sudo pacman -S"
