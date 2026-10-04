@@ -6,5 +6,5 @@ hl.monitor({
 })
 
 
-hl.monitor({ output = "HDMI-A-3", disabled = true })
-hl.monitor({ output = "DP-4", disabled = true })
+hl.monitor({ output = "HDMI-A-1", disabled = true })
+hl.monitor({ output = "DP-3", disabled = true })

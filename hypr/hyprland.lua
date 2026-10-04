@@ -8,7 +8,6 @@ local files = "kitty -e yazi"
 local menu = "rofi -show drun"
 local terminal = "kitty"
 local docker = "kitty -e lazydocker"
-local bookmarks = "~/dev/scripts/bookmarks.sh"
 local repos = "~/dev/scripts/repos.sh"
 local sessions = "~/dev/scripts/tmux.sh"
 local monitors = "~/dev/scripts/monitor_dock_detect.sh"
@@ -231,7 +230,6 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(files))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(docker))
 hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(bookmarks))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(repos))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(sessions))
 hl.bind(mainMod .. " + O", hl.dsp.exec_cmd(monitors))
