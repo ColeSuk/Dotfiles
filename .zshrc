@@ -154,6 +154,10 @@ alias artisan="php artisan"
 alias pu="composer update"
 alias pi="composer install"
 
+# ssh
+alias ssh="kitten ssh"
+
+
 # ---------------------------------------------------------------------------
 # tmux auto-attach (optional)
 # ---------------------------------------------------------------------------
