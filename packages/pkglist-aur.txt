@@ -1,0 +1,5 @@
+brave-bin
+claude-desktop
+tokyonight-gtk-theme-git
+triliumnext-bin
+yay
