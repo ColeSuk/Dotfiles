@@ -7,6 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # stores the folder the script lives in.
 PKG_DIR="$SCRIPT_DIR/packages"
+CHANGED=()
 
 log() { echo "==> $*"; } # echo out ==> plus everything I was called with
 
@@ -52,17 +53,35 @@ install_aur() {
   yay -S --needed "${pkgs[@]}"
 }
 
-deploy_file() {
-  local rel="$1"
-  local src="$SCRIPT_DIR/system/$rel"
-  local dest="/$rel"
-  [[ -f "$src" ]] || die "The system directory does not contain: $src"
+install_if_changed() {
+  local src="$1" dest="$2" rel="$3"
   if sudo cmp -s "$src" "$dest"; then
     log "unchanged: $dest"
     return 0
   fi
   sudo install -Dm644 "$src" "$dest"
+  CHANGED+=("$rel")
   log "updated: $dest"
+}
+
+deploy_file() {
+  local rel="$1"
+  local src="$SCRIPT_DIR/system/$rel"
+  local dest="/$rel"
+  [[ -f "$src" ]] || die "The system directory does not contain: $src"
+  install_if_changed "$src" "$dest" "$rel"
+}
+
+deploy_template() {
+  local rel="$1"
+  local tpl="$SCRIPT_DIR/system/$rel.template"
+  : "${LAN_CIDR:?LAN_CIDR is not set (see local/config.sh)}"
+  [[ -f "$tpl" ]] || die "The system directory does not contain: $tpl"
+
+  local rendered
+  rendered="$(mktemp)"
+  sed "s|@LAN_CIDR@|$LAN_CIDR|g" "$tpl" >"$rendered"
+  install_if_changed "$rendered" "/$rel" "$rel"
 }
 
 system_config() {
@@ -78,6 +97,31 @@ system_config() {
   for f in "${files[@]}"; do
     deploy_file "$f"
   done
+  deploy_template etc/systemd/system/docker.service.d/nftables-order.conf
+  local rebuild=0
+  for f in "${CHANGED[@]}"; do
+    case "$f" in
+    etc/mkinitcpio.conf | etc/modprobe.d/*) rebuild=1 ;;
+    esac
+  done
+  if [[ $rebuild -eq 1 ]]; then
+    log "Rebuilding initramfs"
+    sudo mkinitcpio -P
+  fi
+}
+
+load_local_config() {
+  local cfg="$SCRIPT_DIR/local/config.sh"
+  if [[ -f "$cfg" ]]; then
+    source "$cfg"
+  else
+    log "No local/config.sh found, asking for values"
+    read -rp "LAN CIDR (e.g. 192.168.1.0/24): " LAN_CIDR
+    read -rp "NAS host/IP: " NAS_HOST
+    read -rp "NAS share name: " NAS_SHARE
+    # TODO: save these to $cfg so you aren't asked next time
+    rm -f "$rendered"
+  fi
 }
 
 enable_services() { log "enable_services (todo)"; }
@@ -98,6 +142,7 @@ preflight() {
 
 main() {
   preflight
+  load_local_config
   install_native
   install_aur_helper
   install_aur
