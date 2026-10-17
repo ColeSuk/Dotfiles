@@ -15,7 +15,6 @@ fd
 feh
 fzf
 git
-glow
 hypridle
 hyprland
 hyprlock
@@ -24,7 +23,6 @@ hyprpolkitagent
 impala
 intel-ucode
 jolt
-k9s
 kitty
 kubectl
 lazydocker
