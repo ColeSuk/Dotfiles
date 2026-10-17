@@ -1,0 +1,11 @@
+[Unit]
+After=nftables.service
+Wants=nftables.service
+
+[Service]
+ExecStartPost=/usr/bin/iptables -A DOCKER-USER -m conntrack --ctstate ESTABLISHED,RELATED -j RETURN
+ExecStartPost=/usr/bin/iptables -A DOCKER-USER -i lo -j RETURN
+ExecStartPost=/usr/bin/iptables -A DOCKER-USER -i docker0 -j RETURN
+ExecStartPost=/usr/bin/iptables -A DOCKER-USER -i br-+ -j RETURN
+ExecStartPost=/usr/bin/iptables -A DOCKER-USER -s @LAN_CIDR@ -j RETURN
+ExecStartPost=/usr/bin/iptables -A DOCKER-USER -j DROP
