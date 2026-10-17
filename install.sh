@@ -45,7 +45,7 @@ install_aur() {
   local pkgs
   mapfile -t pkgs <"$list"
   if [[ ${#pkgs[@]} -eq 0 ]]; then
-    log "The are no packages to install from the AUR."
+    log "There are no packages to install from the AUR."
     return 0
   fi
   log "Installing AUR packages"
@@ -56,19 +56,30 @@ deploy_file() {
   local rel="$1"
   local src="$SCRIPT_DIR/system/$rel"
   local dest="/$rel"
-
-  # TODO: die if $src doesn't exist.
-
+  [[ -f "$src" ]] || die "The system directory does not contain: $src"
   if sudo cmp -s "$src" "$dest"; then
     log "unchanged: $dest"
     return 0
   fi
-
   sudo install -Dm644 "$src" "$dest"
   log "updated: $dest"
 }
 
-system_config() { log "system_config (todo)"; }
+system_config() {
+  log "Deploying system config"
+  local files=(
+    etc/modprobe.d/blacklist-nouveau.conf
+    etc/modprobe.d/nvidia-pm.conf
+    etc/nftables.conf
+    etc/mkinitcpio.conf
+    etc/iwd/main.conf
+  )
+  local f
+  for f in "${files[@]}"; do
+    deploy_file "$f"
+  done
+}
+
 enable_services() { log "enable_services (todo)"; }
 link_dotfiles() { log "link_dotfiles (todo)"; }
 extras() { log "extras (todo)"; }
