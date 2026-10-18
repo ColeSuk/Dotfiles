@@ -82,6 +82,7 @@ deploy_template() {
   rendered="$(mktemp)"
   sed "s|@LAN_CIDR@|$LAN_CIDR|g" "$tpl" >"$rendered"
   install_if_changed "$rendered" "/$rel" "$rel"
+  rm -f "$rendered"
 }
 
 system_config() {
@@ -98,15 +99,31 @@ system_config() {
     deploy_file "$f"
   done
   deploy_template etc/systemd/system/docker.service.d/nftables-order.conf
-  local rebuild=0
+  local want='GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet nvidia-drm.modeset=1 nvidia_drm.fbdev=1"'
+  if ! grep -qxF "$want" /etc/default/grub; then
+    sudo sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|$want|" /etc/default/grub
+    CHANGED+=("etc/default/grub")
+    log "updated: GRUB_CMDLINE_LINUX_DEFAULT"
+  fi
+  local grub=0 reload=0 rebuild=0
   for f in "${CHANGED[@]}"; do
     case "$f" in
     etc/mkinitcpio.conf | etc/modprobe.d/*) rebuild=1 ;;
+    etc/default/grub) grub=1 ;;
+    etc/systemd/system/*) reload=1 ;;
     esac
   done
   if [[ $rebuild -eq 1 ]]; then
     log "Rebuilding initramfs"
     sudo mkinitcpio -P
+  fi
+  if [[ $reload -eq 1 ]]; then
+    log "Reloading systemd"
+    sudo systemctl daemon-reload
+  fi
+  if [[ grub -eq 1 ]]; then
+    log "Regenerating GRUB config"
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
   fi
 }
 
@@ -120,7 +137,6 @@ load_local_config() {
     read -rp "NAS host/IP: " NAS_HOST
     read -rp "NAS share name: " NAS_SHARE
     # TODO: save these to $cfg so you aren't asked next time
-    rm -f "$rendered"
   fi
 }
 
