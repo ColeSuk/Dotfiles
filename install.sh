@@ -171,6 +171,29 @@ enable_services() {
   done
 }
 
+setup_user() {
+  log "Configuring user account"
+
+  # docker group
+  if [[ " $(id -nG "$USER") " == *" docker "* ]]; then
+    log "already in docker group"
+  else
+    log "Adding current user to docker group"
+    sudo usermod -aG docker "$USER"
+  fi
+
+  # login shell
+  local zsh_path current_shell
+  zsh_path="$(command -v zsh)"
+  current_shell="$(getent passwd "$USER" | cut -d: -f7)"
+  if [[ $current_shell != "$zsh_path" ]]; then
+    log "Setting user shell to zsh"
+    sudo chsh -s "$zsh_path" "$USER"
+  else
+    log "User shell is already zsh"
+  fi
+}
+
 link_dotfiles() { log "link_dotfiles (todo)"; }
 extras() { log "extras (todo)"; }
 
@@ -194,6 +217,7 @@ main() {
   install_aur
   system_config
   enable_services
+  setup_user
   link_dotfiles
   extras
 }
