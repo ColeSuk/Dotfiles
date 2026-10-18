@@ -121,7 +121,7 @@ system_config() {
     log "Reloading systemd"
     sudo systemctl daemon-reload
   fi
-  if [[ grub -eq 1 ]]; then
+  if [[ $grub -eq 1 ]]; then
     log "Regenerating GRUB config"
     sudo grub-mkconfig -o /boot/grub/grub.cfg
   fi
@@ -140,7 +140,37 @@ load_local_config() {
   fi
 }
 
-enable_services() { log "enable_services (todo)"; }
+enable_services() {
+  log "Enabling services"
+
+  # started now and at boot
+  local now_services=(
+    systemd-resolved
+    iwd
+    nftables
+    docker
+    tailscaled
+  )
+
+  # enabled for next boot only
+  local boot_services=(
+    nvidia-suspend
+    nvidia-hibernate
+    nvidia-resume
+    ly@tty2
+  )
+
+  local s
+  for s in "${now_services[@]}"; do
+    log "enabling $s"
+    sudo systemctl enable --now "$s"
+  done
+  for s in "${boot_services[@]}"; do
+    log "enabling $s"
+    sudo systemctl enable "$s"
+  done
+}
+
 link_dotfiles() { log "link_dotfiles (todo)"; }
 extras() { log "extras (todo)"; }
 
@@ -150,7 +180,7 @@ preflight() {
   if [[ $EUID -eq 0 ]]; then
     die "Run this as your normal user, not as root"
   fi
-  if ! ping -c1 -W3 archlinux.org >/dev/null 2>&1; then
+  if ! ping -n -c1 -W3 archlinux.org >/dev/null 2>&1; then
     die "No internet connection"
   fi
   sudo -v || die "Unable to use sudo"
