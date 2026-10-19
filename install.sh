@@ -147,6 +147,7 @@ enable_services() {
   local now_services=(
     systemd-resolved
     iwd
+    systemd-timesyncd
     nftables
     docker
     tailscaled
@@ -194,7 +195,112 @@ setup_user() {
   fi
 }
 
-link_dotfiles() { log "link_dotfiles (todo)"; }
+link_one() {
+  local src="$1" dest="$2"
+  [[ -e "$src" ]] || die "Missing in repo: $src"
+
+  # 1. already correct?
+  if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
+    log "linked: $dest"
+    return 0
+  fi
+
+  # 2. something else is there: a real file or folder, or a wrong/broken link
+  if [[ -e "$dest" || -L "$dest" ]]; then
+    local backup="$dest.bak.$(date +%Y%m%d%H%M%S)"
+    mv "$dest" "$backup"
+    log "backed up: $dest -> $backup"
+  fi
+
+  # 3. make the parent folder, then the link
+  log "Creating parent folder"
+  mkdir -p "$(dirname "$dest")"
+  log "Create the link"
+  ln -s "$src" "$dest"
+  log "linked: $dest"
+}
+
+link_dotfiles() {
+  log "Linking dotfiles"
+  local links=(
+    ".zshrc|$HOME/.zshrc"
+    ".gitconfig|$HOME/.gitconfig"
+    "starship.toml|$HOME/.config/starship.toml"
+    "hypr|$HOME/.config/hypr"
+    "kitty|$HOME/.config/kitty"
+    "nvim|$HOME/.config/nvim"
+    "rofi|$HOME/.config/rofi"
+    "tmux|$HOME/.config/tmux"
+    "waybar|$HOME/.config/waybar"
+  )
+  local entry rel dest
+  for entry in "${links[@]}"; do
+    rel="${entry%%|*}"
+    dest="${entry#*|}"
+    link_one "$SCRIPT_DIR/$rel" "$dest"
+  done
+  local active="$SCRIPT_DIR/hypr/monitors_active.lua"
+  if [[ -e "$active" || -L "$active" ]]; then
+    log "kept: $active"
+  else
+    ln -s "$SCRIPT_DIR/hypr/monitors_undocked.lua" "$active"
+    log "created: $active"
+  fi
+}
+
+ensure_line() {
+  local line="$1" file="$2"
+  if grep -qxF "$line" "$file"; then
+    log "present: $line"
+  else
+    echo "$line" | sudo tee -a "$file" >dev/null
+    log "added: $line"
+  fi
+}
+
+system_basics() {
+  log "Configuring timezone, hostname, locale"
+
+  local tz="America/Chicago"
+  local new_hostname="revenant"
+
+  # timezone
+  if [[ "$(timedatectl show -p Timezone --value)" != "$tz" ]]; then
+    log "Setting timezone to: $tz"
+    sudo timedatectl set-timezone "$tz"
+  else
+    log "timezone already $tz"
+  fi
+
+  # hostname
+  if [[ "$(hostnamectl hostname)" != "$new_hostname" ]]; then
+    log "Setting hostname to $new_hostname"
+    sudo hostnamectl set-hostname "$new_hostname"
+  else
+    log "Hostname is already $new_hostname"
+  fi
+
+  # locale
+  if ! grep -q '^en_US.UTF-8 UTF-8' /etc/locale.gen; then
+    log "Uncommenting and setting locale to en_US.UTF-8 UTF-8"
+    sudo sed -i 's/^#\(en_US\.UTF-8 UTF-8\)/\1/' /etc/locale.gen
+    sudo locale-gen
+  fi
+  if ! grep -qxF 'LANG=en_US.UTF-8' /etc/locale.conf 2>/dev/null; then
+    log "Setting LANG to en_US.UTF-8"
+    sudo localectl set-locale LANG=en_US.UTF-8
+  fi
+
+  # resolv.conf
+  local stub="/run/systemd/resolve/resolv.conf"
+  if [[ ! "$(readlink /etc/resolv.conf)" != "$stub" ]]; then
+    log "Linking /etc/resolv.conf to the systemd-resolved stub"
+    sudo ln -sf "$stub" /etc/resolv.conf
+  fi
+  ensure_line "127.0.0.1 nginx.local" /etc/hosts
+  ensure_line "127.0.0.1 httpd.local" /etc/hosts
+}
+
 extras() { log "extras (todo)"; }
 
 preflight() {
@@ -216,10 +322,15 @@ main() {
   install_aur_helper
   install_aur
   system_config
+  system_basics
   enable_services
   setup_user
   link_dotfiles
   extras
 }
 
-main "$@"
+if [[ $# -gt 0 ]]; then
+  "$@"
+else
+  main
+fi
