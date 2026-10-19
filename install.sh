@@ -253,7 +253,7 @@ ensure_line() {
   if grep -qxF "$line" "$file"; then
     log "present: $line"
   else
-    echo "$line" | sudo tee -a "$file" >dev/null
+    echo "$line" | sudo tee -a "$file" >/dev/null
     log "added: $line"
   fi
 }
@@ -292,13 +292,38 @@ system_basics() {
   fi
 
   # resolv.conf
-  local stub="/run/systemd/resolve/resolv.conf"
-  if [[ ! "$(readlink /etc/resolv.conf)" != "$stub" ]]; then
+  local stub="/run/systemd/resolve/stub-resolv.conf"
+  if [[ "$(readlink /etc/resolv.conf)" != "$stub" ]]; then
     log "Linking /etc/resolv.conf to the systemd-resolved stub"
     sudo ln -sf "$stub" /etc/resolv.conf
   fi
   ensure_line "127.0.0.1 nginx.local" /etc/hosts
   ensure_line "127.0.0.1 httpd.local" /etc/hosts
+}
+
+clone_one() {
+  local repo="$1" dest="$2" # repo looks like ColeSuk/bash-scripts
+  if [[ -d "$dest/.git" ]]; then
+    log "present: $dest"
+    return 0
+  fi
+  log "Cloning $repo"
+  mkdir -p "$(dirname "$dest")"
+  git clone "https://github.com/$repo.git" "$dest"
+  git -C "$dest" remote set-url origin "git@github.com:$repo.git"
+}
+
+clone_repos() {
+  log "Cloning repos"
+  local repos=(
+    "ColeSuk/bash-scripts|$HOME/dev/scripts"
+  )
+  local entry repo dest
+  for entry in "${repos[@]}"; do
+    repo="${entry%%|*}"
+    dest="${entry#*|}"
+    clone_one "$repo" "$dest"
+  done
 }
 
 extras() { log "extras (todo)"; }
@@ -326,6 +351,7 @@ main() {
   enable_services
   setup_user
   link_dotfiles
+  clone_repos
   extras
 }
 
