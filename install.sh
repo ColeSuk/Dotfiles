@@ -326,6 +326,40 @@ clone_repos() {
   done
 }
 
+setup_nas() {
+  log "Configuring NAS mount"
+
+  local mnt="/mnt/nas"
+  local cred="/etc/samba/credentials/nas"
+  : "${NAS_HOST:?NAS_HOST is not set (see local/config.sh)}"
+  : "${NAS_SHARE:?NAS_SHARE is not set (see local/config.sh)}"
+
+  log "Creating mount point"
+  sudo mkdir -p "$mnt"
+  local nas_user nas_pass
+  if ! sudo test -f "$cred"; then
+    sudo install -d -m700 /etc/samba/credentials
+    read -rp "NAS username: " nas_user
+    read -rsp "NAS password: " nas_pass
+    echo
+    sudo install -m600 /dev/null "$cred"
+    printf 'username=%s\npassword=%s\n' "$nas_user" "$nas_pass" | sudo tee "$cred" >/dev/null
+  else
+    log "present: $cred"
+  fi
+  local fstab="/etc/fstab"
+  local line="//$NAS_HOST/$NAS_SHARE $mnt cifs credentials=$cred,uid=$(id -u),gid=$(id -g),iocharset=utf8,_netdev,x-systemd.automount 0 0"
+  local reload=0
+  if ! grep -qxF "$line" "$fstab"; then
+    reload=1
+  fi
+  if [[ $reload -eq 1 ]]; then
+    log "Reloading systemd"
+    sudo systemctl daemon-reload
+  fi
+  ensure_line "$line" "$fstab"
+}
+
 extras() { log "extras (todo)"; }
 
 preflight() {
@@ -352,10 +386,12 @@ main() {
   setup_user
   link_dotfiles
   clone_repos
+  setup_nas
   extras
 }
 
 if [[ $# -gt 0 ]]; then
+  load_local_config
   "$@"
 else
   main
