@@ -353,14 +353,44 @@ setup_nas() {
   if ! grep -qxF "$line" "$fstab"; then
     reload=1
   fi
+  ensure_line "$line" "$fstab"
   if [[ $reload -eq 1 ]]; then
     log "Reloading systemd"
     sudo systemctl daemon-reload
   fi
-  ensure_line "$line" "$fstab"
 }
 
-extras() { log "extras (todo)"; }
+trust_caddy_ca() {
+  local crt="$SCRIPT_DIR/system/ca/caddy-local-root.crt"
+  [[ -f "$crt" ]] || die "The system directory does not contain: $crt"
+  local trusted
+  trusted="$(trust list)"
+  if grep -q "Caddy Local Authority" <<<"$trusted"; then
+    log "present: Caddy CA is already trusted"
+  else
+    log "Adding Caddy cert"
+    sudo trust anchor "$crt"
+  fi
+}
+
+extras() {
+  log "Installing extras"
+
+  local uv_tools=(ruff mypy)
+  local t
+  local installed
+  installed="$(uv tool list)"
+
+  for t in "${uv_tools[@]}"; do
+    if grep -q "^$t " <<<"$installed"; then
+      log "present: $t"
+    else
+      log "Installing $t"
+      uv tool install "$t"
+    fi
+  done
+  trust_caddy_ca
+}
 
 preflight() {
   log "Running preflight checks."
