@@ -136,7 +136,14 @@ load_local_config() {
     read -rp "LAN CIDR (e.g. 192.168.1.0/24): " LAN_CIDR
     read -rp "NAS host/IP: " NAS_HOST
     read -rp "NAS share name: " NAS_SHARE
-    # TODO: save these to $cfg so you aren't asked next time
+    mkdir -p "$SCRIPT_DIR/local"
+    {
+      printf 'NAS_HOST=%q\n' "$NAS_HOST"
+      printf 'NAS_SHARE=%q\n' "$NAS_SHARE"
+      printf 'LAN_CIDR=%q\n' "$LAN_CIDR"
+    } >"$cfg"
+    chmod 600 "$cfg"
+    log "Saved Nas host, Nas share and Lan CIDR to config"
   fi
 }
 
