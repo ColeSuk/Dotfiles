@@ -22,6 +22,8 @@ install_native() {
     die "The native package list file does not exist"
   fi
   log "Installing native packages"
+  # shellcheck disable=SC2024
+  # this warning is a false alarm since the redirect is performed by the shell not by sudo
   sudo pacman -Syu --needed - <"$list"
 }
 
@@ -130,6 +132,7 @@ system_config() {
 load_local_config() {
   local cfg="$SCRIPT_DIR/local/config.sh"
   if [[ -f "$cfg" ]]; then
+    # shellcheck source=/dev/null
     source "$cfg"
   else
     log "No local/config.sh found, asking for values"
@@ -215,7 +218,8 @@ link_one() {
 
   # 2. something else is there: a real file or folder, or a wrong/broken link
   if [[ -e "$dest" || -L "$dest" ]]; then
-    local backup="$dest.bak.$(date +%Y%m%d%H%M%S)"
+    local backup
+    backup="$dest.bak.$(date +%Y%m%d%H%M%S)"
     mv "$dest" "$backup"
     log "backed up: $dest -> $backup"
   fi
@@ -356,8 +360,9 @@ setup_nas() {
     log "present: $cred"
   fi
   local fstab="/etc/fstab"
-  local line="//$NAS_HOST/$NAS_SHARE $mnt cifs credentials=$cred,uid=$(id -u),gid=$(id -g),iocharset=utf8,_netdev,x-systemd.automount 0 0"
+  local line
   local reload=0
+  line="//$NAS_HOST/$NAS_SHARE $mnt cifs credentials=$cred,uid=$(id -u),gid=$(id -g),iocharset=utf8,_netdev,x-systemd.automount 0 0"
   if ! grep -qxF "$line" "$fstab"; then
     reload=1
   fi
@@ -404,7 +409,7 @@ post_install_checklist() {
   cat <<'EOF'
 Manual steps remaining:
   1.) SSH keys (restore or generate), then add them to GitHub
-  2.) Switching the dotfiles repo’s own remote to SSH once keys exist: git -C ~/.dotfiles remote set-url origin git@github.com:ColeSuk/Dotfiles.git
+  2.) Switching the dotfiles repo's own remote to SSH once keys exist: git -C ~/.dotfiles remote set-url origin git@github.com:ColeSuk/Dotfiles.git
   3.) Wi-Fi through impala
   4.) sudo tailscale up
   5.) Check the NAS: ls /mnt/nas triggers the automount
