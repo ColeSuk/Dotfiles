@@ -400,6 +400,20 @@ extras() {
   trust_caddy_ca
 }
 
+post_install_checklist() {
+  cat <<'EOF'
+Manual steps remaining:
+  1.) SSH keys (restore or generate), then add them to GitHub
+  2.) Switching the dotfiles repo’s own remote to SSH once keys exist: git -C ~/.dotfiles remote set-url origin git@github.com:ColeSuk/Dotfiles.git
+  3.) Wi-Fi through impala
+  4.) sudo tailscale up
+  5.) Check the NAS: ls /mnt/nas triggers the automount
+  6.) Install and sign in to the claude CLI
+  7.) Check one Caddy-proxied site in Brave. If it complains about the certificate, Brave uses its own database; add a certutil step to install.sh.
+  8.) Log out and back in, so the docker group and zsh shell take effect, and reboot for the NVIDIA changes
+EOF
+}
+
 preflight() {
   log "Running preflight checks."
 
@@ -426,6 +440,7 @@ main() {
   clone_repos
   setup_nas
   extras
+  post_install_checklist
 }
 
 if [[ $# -gt 0 ]]; then
