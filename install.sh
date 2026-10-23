@@ -136,6 +136,7 @@ load_local_config() {
     read -rp "LAN CIDR (e.g. 192.168.1.0/24): " LAN_CIDR
     read -rp "NAS host/IP: " NAS_HOST
     read -rp "NAS share name: " NAS_SHARE
+    [[ $NAS_SHARE != //* ]] || die "NAS_SHARE should be just the share name (e.g. nas), not //host/share"
     mkdir -p "$SCRIPT_DIR/local"
     {
       printf 'NAS_HOST=%q\n' "$NAS_HOST"
@@ -340,7 +341,7 @@ setup_nas() {
   local cred="/etc/samba/credentials/nas"
   : "${NAS_HOST:?NAS_HOST is not set (see local/config.sh)}"
   : "${NAS_SHARE:?NAS_SHARE is not set (see local/config.sh)}"
-
+  [[ $NAS_SHARE != //* ]] || die "NAS_SHARE should be just the share name (e.g. nas), not //host/share"
   log "Creating mount point"
   sudo mkdir -p "$mnt"
   local nas_user nas_pass

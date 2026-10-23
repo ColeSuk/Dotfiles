@@ -22,6 +22,7 @@ hyprpaper
 hyprpolkitagent
 impala
 intel-ucode
+iwd
 jolt
 kitty
 kubectl
@@ -33,6 +34,7 @@ ly
 mako
 mesa-utils
 neovim
+nftables
 noto-fonts
 noto-fonts-emoji
 npm
