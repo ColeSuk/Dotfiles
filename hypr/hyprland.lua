@@ -12,6 +12,9 @@ local repos = "~/dev/scripts/repos.sh"
 local sessions = "~/dev/scripts/tmux.sh"
 local monitors = "~/dev/scripts/monitor_dock_detect.sh"
 local browser = "brave"
+local shot_region_clip = "hyprshot -m region --clipboard-only"
+local shot_region_file = "hyprshot -m region -o ~/photos/screenshots"
+local shot_monitor = "hyprshot -m output -o ~/photos/screenshots"
 
 -------------------
 ---- AUTOSTART ----
@@ -254,6 +257,12 @@ for i = 1, 10 do
   hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
   hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
+
+-- Hypershot keybinds
+hl.bind("Print", hl.dsp.exec_cmd(shot_region_clip))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd(shot_region_file))
+hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd(shot_monitor))
+
 
 -- Example special workspace (scratchpad)
 --hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"))

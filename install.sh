@@ -403,6 +403,8 @@ extras() {
     fi
   done
   trust_caddy_ca
+  log "making screenshot folder"
+  mkdir -P "$HOME/photos/screenshots/"
 }
 
 post_install_checklist() {
