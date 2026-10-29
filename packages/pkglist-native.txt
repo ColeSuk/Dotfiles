@@ -15,11 +15,13 @@ fd
 feh
 fzf
 git
+grim
 hypridle
 hyprland
 hyprlock
 hyprpaper
 hyprpolkitagent
+hyprshot
 impala
 intel-ucode
 iwd
@@ -54,6 +56,7 @@ qt6-wayland
 ripgrep
 rofi
 signal-desktop
+slurp
 smbclient
 sof-firmware
 starship
@@ -70,6 +73,7 @@ vim
 waybar
 wiremix
 wireplumber
+wl-clipboard
 xdg-desktop-portal-hyprland
 yazi
 zip
