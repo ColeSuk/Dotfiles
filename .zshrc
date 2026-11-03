@@ -39,6 +39,30 @@ if [ ! -d "$ZINIT_HOME" ]; then
 fi
 source "${ZINIT_HOME}/zinit.zsh"
 
+# 1. Extra completion deffinitions -- only add to fpath, so must come
+#    BEFORE compinit or it completions never get loaded
+zinit light zsh-users/zsh-completions
+
+# ---------------------------------------------------------------------------
+# 2. Completion system
+# ---------------------------------------------------------------------------
+autoload -Uz compinit
+compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump-$ZSH_VERSION"
+
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' group-name ''
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color=always $realpath 2>/dev/null'
+
+# ---------------------------------------------------------------------------
+# 3. Plugins that hook into completion / wrap widgets
+# ---------------------------------------------------------------------------
+
+# fzf-powered tab completion menu (pairs well with fzf below)
+zinit light Aloxaf/fzf-tab
+
 # Suggestions from history as you type (accept with -> or Ctrl-F)
 zinit light zsh-users/zsh-autosuggestions
 
@@ -51,29 +75,9 @@ zinit light zsh-users/zsh-syntax-highlighting
 # Must load after zsh-syntax-highlighting (its docs recommend this order).
 zinit light zsh-users/zsh-history-substring-search
 
-# Extra completion definitions beyond what zsh ships with
-zinit light zsh-users/zsh-completions
-
-# fzf-powered tab completion menu (pairs well with fzf below)
-zinit light Aloxaf/fzf-tab
-
 # vi-mode with better mode indication + text objects, since you live in
 # LazyVim already
 zinit light jeffreytse/zsh-vi-mode
-
-# ---------------------------------------------------------------------------
-# Completion system
-# ---------------------------------------------------------------------------
-autoload -Uz compinit
-compinit -d "${XDG_CACHE_HOME:-$HOME/.cache}/zcompdump-$ZSH_VERSION"
-
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':completion:*' group-name ''
-# fzf-tab preview for cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color=always $realpath 2>/dev/null'
 
 # ---------------------------------------------------------------------------
 # Prompt
@@ -170,8 +174,6 @@ alias ssh="kitten ssh"
 # ---------------------------------------------------------------------------
 # Key bindings (in addition to zsh-vi-mode defaults)
 # ---------------------------------------------------------------------------
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
 
 # zsh-vi-mode finishes its own setup on the first prompt (via a precmd hook),
 # which runs after this whole file, and it unconditionally rebinds ^R to
@@ -183,6 +185,10 @@ function zvm_after_init() {
     if command -v fzf &>/dev/null; then
         source /usr/share/fzf/key-bindings.zsh 2>/dev/null
     fi
+    bindkey '^[[A' history-substring-search-up
+    bindkey '^[[B' history-substring-search-down
+    bindkey -M vicmd 'k' history-substring-search-up
+    bindkey -M vicmd 'j' history-substring-search-down
 }
 
 # ---------------------------------------------------------------------------
