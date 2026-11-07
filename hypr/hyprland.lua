@@ -348,3 +348,11 @@ hl.window_rule({
   center = true,
   size = { 1000, 600 }
 })
+
+
+
+hl.config({
+  render = {
+    cm_auto_hdr = 0,
+  },
+})
